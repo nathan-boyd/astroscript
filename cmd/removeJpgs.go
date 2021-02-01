@@ -8,15 +8,17 @@ import (
 
 var in string
 
+func Run(cmd *cobra.Command, args []string) error {
+	fmt.Fprintf(cmd.OutOrStdout(), in)
+	return nil
+}
+
 func NewRemoveJpgsCmd() *cobra.Command {
 
 	var cmd = &cobra.Command{
 		Use:   "removeJpgs",
 		Short: "something",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Fprintf(cmd.OutOrStdout(), in)
-			return nil
-		},
+		RunE:  Run,
 	}
 	cmd.Flags().StringVar(&in, "in", "", "This is a very important input.")
 
@@ -24,7 +26,8 @@ func NewRemoveJpgsCmd() *cobra.Command {
 }
 
 func init() {
-	rootCmd.AddCommand(NewRemoveJpgsCmd())
+	cmd := NewRemoveJpgsCmd()
+	rootCmd.AddCommand(cmd)
 
 	// Here you will define your flags and configuration settings.
 

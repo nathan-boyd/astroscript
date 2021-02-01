@@ -8,6 +8,10 @@
 
 `astroscript removeJpgs`
 
+### run tests
+
+`go test ./...`
+
 ### run app without installing
 
 `go run main.go`
