@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -27,22 +26,19 @@ type EnvWrapper interface {
 	GetWorkingDirectory() (wb string, err error)
 }
 
+// EnvWrapperImpl is an implementation of an EnvWrapper
 type EnvWrapperImpl struct{}
 
 // GetWorkingDirectory returns a fake working directory for testing
 func (t *EnvWrapperImpl) GetWorkingDirectory() (wd string, err error) {
-	return
+	return os.Getwd()
 }
 
-func run(cmd *cobra.Command, args []string) error {
-
-	path, err := os.Getwd()
-	if err != nil {
-		log.Println(err)
+func run(cmd *cobra.Command, args []string, envWrapper EnvWrapper) (err error) {
+	if 0 == len(directory) {
+		fmt.Fprintf(cmd.OutOrStdout(), "optional directory argument not provided, using current working directory")
+		directory, err = envWrapper.GetWorkingDirectory()
 	}
-
-	log.Println(path)
-
 	fmt.Fprintf(cmd.OutOrStdout(), directory)
 	return nil
 }
@@ -53,7 +49,9 @@ func NewRemoveJpgsCmd(envWrapper EnvWrapper) *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "removeJpgs",
 		Short: "something",
-		RunE:  run,
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+			return run(cmd, args, envWrapper)
+		},
 	}
 
 	cmd.Flags().StringVar(&directory, "dir", "", "The directory to remove JPG files from")
