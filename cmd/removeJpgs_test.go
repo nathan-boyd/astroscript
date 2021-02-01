@@ -6,8 +6,18 @@ import (
 	"testing"
 )
 
+// TestEnvWrapper is a wrapper around file and operating system functions for testing
+type testEnvWrapper struct{}
+
+// GetWorkingDirectory returns a fake working directory for testing
+func (t *testEnvWrapper) GetWorkingDirectory() (wd string, err error) {
+	return
+}
+
 func Test_RemoveJpgsCmd(t *testing.T) {
-	cmd := NewRemoveJpgsCmd()
+
+	envWrapper := &testEnvWrapper{}
+	cmd := NewRemoveJpgsCmd(envWrapper)
 	b := bytes.NewBufferString("")
 	cmd.SetOut(b)
 	cmd.SetArgs([]string{"--dir", "testisawesome"})
