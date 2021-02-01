@@ -10,7 +10,7 @@ func Test_RemoveJpgsCmd(t *testing.T) {
 	cmd := NewRemoveJpgsCmd()
 	b := bytes.NewBufferString("")
 	cmd.SetOut(b)
-	cmd.SetArgs([]string{"--in", "testisawesome"})
+	cmd.SetArgs([]string{"--dir", "testisawesome"})
 	cmd.Execute()
 	out, err := ioutil.ReadAll(b)
 	if err != nil {

@@ -6,21 +6,27 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var in string
+var directory string
 
-func Run(cmd *cobra.Command, args []string) error {
-	fmt.Fprintf(cmd.OutOrStdout(), in)
+var fileNameSubstring = "_thn"
+
+// only delete jpgs from one of the following subDirectories
+var subDirectories = [...]string{"Light", "Dark", "Bias", "Flat"}
+
+func run(cmd *cobra.Command, args []string) error {
+	fmt.Fprintf(cmd.OutOrStdout(), directory)
 	return nil
 }
 
+// NewRemoveJpgsCmd initializes an instance of a command which removes jpg files from a directory
 func NewRemoveJpgsCmd() *cobra.Command {
 
 	var cmd = &cobra.Command{
 		Use:   "removeJpgs",
 		Short: "something",
-		RunE:  Run,
+		RunE:  run,
 	}
-	cmd.Flags().StringVar(&in, "in", "", "This is a very important input.")
+	cmd.Flags().StringVar(&directory, "dir", "", "The directory to remove JPG files from")
 
 	return cmd
 }
