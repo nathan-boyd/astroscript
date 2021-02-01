@@ -14,7 +14,7 @@
 
 ### add new console command
 
-`cobra add removeJpgs`
+`cobra add remove-jpgs --config .cobra.yaml`
 
 ### app generated with
 
