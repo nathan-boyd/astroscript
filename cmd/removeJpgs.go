@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -24,6 +25,7 @@ var subDirectories = [...]string{
 // EnvWrapper abstracts the operating system and file system away from the application
 type EnvWrapper interface {
 	GetWorkingDirectory() (wb string, err error)
+	DirectoryExists(path string) (directoryExists bool)
 }
 
 // EnvWrapperImpl is an implementation of an EnvWrapper
@@ -34,13 +36,31 @@ func (t *EnvWrapperImpl) GetWorkingDirectory() (wd string, err error) {
 	return os.Getwd()
 }
 
+// DirectoryExists returns true if directory exists
+func (t *EnvWrapperImpl) DirectoryExists(path string) (directoryExists bool) {
+
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return false
+	}
+
+	return true
+}
+
 func run(cmd *cobra.Command, args []string, envWrapper EnvWrapper) (err error) {
+
 	if 0 == len(directory) {
 		fmt.Fprintf(cmd.OutOrStdout(), "optional directory argument not provided, using current working directory")
 		directory, err = envWrapper.GetWorkingDirectory()
+		if nil != err {
+			return errors.Wrap(err, "failed to get working directory")
+		}
 	}
-	fmt.Fprintf(cmd.OutOrStdout(), directory)
-	return nil
+
+	if !envWrapper.DirectoryExists(directory) {
+		return fmt.Errorf("directory does not exist %s", directory)
+	}
+
+	return
 }
 
 // NewRemoveJpgsCmd initializes an instance of a command which removes jpg files from a directory
@@ -62,5 +82,6 @@ func NewRemoveJpgsCmd(envWrapper EnvWrapper) *cobra.Command {
 func init() {
 	envWrapper := &EnvWrapperImpl{}
 	cmd := NewRemoveJpgsCmd(envWrapper)
+
 	rootCmd.AddCommand(cmd)
 }

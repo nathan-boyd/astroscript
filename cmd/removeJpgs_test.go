@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"bytes"
+	"errors"
+	"fmt"
 	"io/ioutil"
 	"testing"
 
@@ -16,34 +18,72 @@ func TestAstroscript(t *testing.T) {
 }
 
 // TestEnvWrapper is a wrapper around file and operating system functions for testing
-type testEnvWrapper struct{}
+type testEnvWrapper struct {
+	DoesDirectoryExist       bool
+	WorkingDirectoryVal      string
+	WorkingDirectoryErrorVal error
+}
+
+// DirectoryExists returns true if directory exists
+func (t *testEnvWrapper) DirectoryExists(path string) (directoryExists bool) {
+	return t.DoesDirectoryExist
+}
 
 // GetWorkingDirectory returns a fake working directory for testing
 func (t *testEnvWrapper) GetWorkingDirectory() (wd string, err error) {
-	return
+	return t.WorkingDirectoryVal, t.WorkingDirectoryErrorVal
 }
 
-var _ = Describe("RemoveJpgsCmd", func() {
+type testCase struct {
+	testEnvWrapper testEnvWrapper
+	inputPath      string
+	expectedOutput string
+	expectedError  error
+}
 
-	DescribeTable("The directory parameter",
+var _ = Describe("The directory parameter", func() {
 
-		func(directory string, shouldReturnError bool) {
+	DescribeTable("Should be validated", func(testCase testCase) {
 
-			commandOutput := bytes.NewBufferString("")
-			envWrapper := &testEnvWrapper{}
+		commandOutput := bytes.NewBufferString("")
 
-			cmd := NewRemoveJpgsCmd(envWrapper)
-			cmd.SetOut(commandOutput)
+		cmd := NewRemoveJpgsCmd(&testCase.testEnvWrapper)
+		cmd.SetOut(commandOutput)
 
-			cmd.SetArgs([]string{"--dir", directory})
-			cmd.Execute()
+		cmd.SetArgs([]string{"--dir", testCase.inputPath})
+		err := cmd.Execute()
 
-			out, err := ioutil.ReadAll(commandOutput)
+		out, outputErr := ioutil.ReadAll(commandOutput)
+		Expect(outputErr).Should(BeNil())
 
+		fmt.Println(string(out))
+
+		if nil != testCase.expectedError {
+			Expect(err).Should(MatchError(testCase.expectedError))
+		} else {
 			Expect(err).Should(BeNil())
-			Expect(out).Should(BeEquivalentTo(directory))
-		},
+		}
 
-		Entry("a string with no context", "foo", false),
+		if 0 != len(testCase.expectedOutput) {
+			Expect(string(out)).Should(ContainSubstring(testCase.expectedOutput))
+		}
+	},
+
+		Entry("path that doesn't exist should error", testCase{
+			inputPath: "DoesNotExist",
+			testEnvWrapper: testEnvWrapper{
+				DoesDirectoryExist: false,
+			},
+			expectedError:  errors.New("directory does not exist DoesNotExist"),
+			expectedOutput: "Usage",
+		}),
+
+		Entry("path that doesn't exist should error", testCase{
+			inputPath: "ShouldExist",
+			testEnvWrapper: testEnvWrapper{
+				DoesDirectoryExist: true,
+			},
+			expectedError: nil,
+		}),
 	)
 })

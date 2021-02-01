@@ -10,6 +10,7 @@
 
 ### run tests
 
+`ginkgo -r ./...`
 `go test ./...`
 
 ### run app without installing
