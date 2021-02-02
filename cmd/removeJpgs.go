@@ -23,6 +23,9 @@ var subDirectories = [...]string{
 	"Flat",
 }
 
+// SubdirectoryNotfoundMessage is the error message returned when a required subdirectory is not found in the input path
+var SubdirectoryNotfoundMessage = fmt.Sprintf("%s %s", "required subdirectory not found, path must contain one of the following sub-directories", strings.Join(subDirectories[:], ", "))
+
 // EnvWrapper abstracts the operating system and file system away from the application
 type EnvWrapper interface {
 	GetWorkingDirectory() (wb string, err error)
@@ -87,7 +90,7 @@ func run(cmd *cobra.Command, args []string, envWrapper EnvWrapper) (err error) {
 
 	s := strings.Split(directory, string(envWrapper.GetFilePathSeperator()))
 	if !sliceInSlice(s, subDirectories[:]) {
-		return fmt.Errorf("required subdirectory not found, path must contain one of the following subDirectories %s", strings.Join(subDirectories[:], ", "))
+		return fmt.Errorf(SubdirectoryNotfoundMessage)
 	}
 
 	return

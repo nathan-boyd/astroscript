@@ -92,7 +92,7 @@ var _ = Describe("The directory parameter", func() {
 			testEnvWrapper: testEnvWrapper{
 				DoesDirectoryExist: true,
 			},
-			expectedError: errors.New("required subdirectory not found, path must contain one of the following subDirectories Light, Dark, Bias, Flat"),
+			expectedError: errors.New(SubdirectoryNotfoundMessage),
 		}),
 	)
 })
