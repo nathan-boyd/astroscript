@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -26,6 +27,7 @@ var subDirectories = [...]string{
 type EnvWrapper interface {
 	GetWorkingDirectory() (wb string, err error)
 	DirectoryExists(path string) (directoryExists bool)
+	GetFilePathSeperator() (seperator rune)
 }
 
 // EnvWrapperImpl is an implementation of an EnvWrapper
@@ -46,6 +48,29 @@ func (t *EnvWrapperImpl) DirectoryExists(path string) (directoryExists bool) {
 	return true
 }
 
+// GetFilePathSeperator returns the file path seperator for the operating system
+func (t *EnvWrapperImpl) GetFilePathSeperator() (seperator rune) {
+	return os.PathSeparator
+}
+
+func stringInSlice(incStrin string, incList []string) bool {
+	for _, b := range incList {
+		if b == incStrin {
+			return true
+		}
+	}
+	return false
+}
+
+func sliceInSlice(sliceOne []string, sliceTwo []string) bool {
+	for _, v1 := range sliceOne {
+		if stringInSlice(v1, sliceTwo) {
+			return true
+		}
+	}
+	return false
+}
+
 func run(cmd *cobra.Command, args []string, envWrapper EnvWrapper) (err error) {
 
 	if 0 == len(directory) {
@@ -58,6 +83,11 @@ func run(cmd *cobra.Command, args []string, envWrapper EnvWrapper) (err error) {
 
 	if !envWrapper.DirectoryExists(directory) {
 		return fmt.Errorf("directory does not exist %s", directory)
+	}
+
+	s := strings.Split(directory, string(envWrapper.GetFilePathSeperator()))
+	if !sliceInSlice(s, subDirectories[:]) {
+		return fmt.Errorf("required subdirectory not found, path must contain one of the following subDirectories %s", strings.Join(subDirectories[:], ", "))
 	}
 
 	return

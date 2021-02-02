@@ -3,7 +3,6 @@ package cmd
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"testing"
 
@@ -34,6 +33,11 @@ func (t *testEnvWrapper) GetWorkingDirectory() (wd string, err error) {
 	return t.WorkingDirectoryVal, t.WorkingDirectoryErrorVal
 }
 
+// GetFilePathSeperator returns the file path seperator for the operating system
+func (t *testEnvWrapper) GetFilePathSeperator() (seperator rune) {
+	return '/'
+}
+
 type testCase struct {
 	testEnvWrapper testEnvWrapper
 	inputPath      string
@@ -56,8 +60,6 @@ var _ = Describe("The directory parameter", func() {
 		out, outputErr := ioutil.ReadAll(commandOutput)
 		Expect(outputErr).Should(BeNil())
 
-		fmt.Println(string(out))
-
 		if nil != testCase.expectedError {
 			Expect(err).Should(MatchError(testCase.expectedError))
 		} else {
@@ -69,7 +71,14 @@ var _ = Describe("The directory parameter", func() {
 		}
 	},
 
-		Entry("path that doesn't exist should error", testCase{
+		Entry("should not return error when input directory exists", testCase{
+			inputPath: "/Light/ShouldExist",
+			testEnvWrapper: testEnvWrapper{
+				DoesDirectoryExist: true,
+			},
+		}),
+
+		Entry("should return error when input directory does not exist", testCase{
 			inputPath: "DoesNotExist",
 			testEnvWrapper: testEnvWrapper{
 				DoesDirectoryExist: false,
@@ -78,12 +87,12 @@ var _ = Describe("The directory parameter", func() {
 			expectedOutput: "Usage",
 		}),
 
-		Entry("path that doesn't exist should error", testCase{
-			inputPath: "ShouldExist",
+		Entry("should return error when input directory does not contain requires subdirectory", testCase{
+			inputPath: "/foo/ShouldExist",
 			testEnvWrapper: testEnvWrapper{
 				DoesDirectoryExist: true,
 			},
-			expectedError: nil,
+			expectedError: errors.New("required subdirectory not found, path must contain one of the following subDirectories Light, Dark, Bias, Flat"),
 		}),
 	)
 })
