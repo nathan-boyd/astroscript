@@ -15,7 +15,7 @@ var directory string
 // a string postfixed to each file name
 var fileNameSubstring = "_thn"
 
-// a list of subDirectories which the application is allowed to delete jpgs in
+// a list of subDirectories which the application is allowed to delete jpg in
 var subDirectories = [...]string{
 	"Light",
 	"Dark",
@@ -56,9 +56,9 @@ func (t *EnvWrapperImpl) GetFilePathSeperator() (seperator rune) {
 	return os.PathSeparator
 }
 
-func stringInSlice(incStrin string, incList []string) bool {
+func stringInSlice(incString string, incList []string) bool {
 	for _, b := range incList {
-		if b == incStrin {
+		if b == incString {
 			return true
 		}
 	}
@@ -96,11 +96,11 @@ func run(cmd *cobra.Command, args []string, envWrapper EnvWrapper) (err error) {
 	return
 }
 
-// NewRemoveJpgsCmd initializes an instance of a command which removes jpg files from a directory
-func NewRemoveJpgsCmd(envWrapper EnvWrapper) *cobra.Command {
+// NewRemoveJpgCmd initializes an instance of a command which removes jpg files from a directory
+func NewRemoveJpgCmd(envWrapper EnvWrapper) *cobra.Command {
 
 	var cmd = &cobra.Command{
-		Use:   "removeJpgs",
+		Use:   "removeJpg",
 		Short: "something",
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
 			return run(cmd, args, envWrapper)
@@ -114,7 +114,7 @@ func NewRemoveJpgsCmd(envWrapper EnvWrapper) *cobra.Command {
 
 func init() {
 	envWrapper := &EnvWrapperImpl{}
-	cmd := NewRemoveJpgsCmd(envWrapper)
+	cmd := NewRemoveJpgCmd(envWrapper)
 
 	rootCmd.AddCommand(cmd)
 }

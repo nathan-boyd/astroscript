@@ -51,7 +51,7 @@ var _ = Describe("The directory parameter", func() {
 
 		commandOutput := bytes.NewBufferString("")
 
-		cmd := NewRemoveJpgsCmd(&testCase.testEnvWrapper)
+		cmd := NewRemoveJpgCmd(&testCase.testEnvWrapper)
 		cmd.SetOut(commandOutput)
 
 		cmd.SetArgs([]string{"--dir", testCase.inputPath})
