@@ -18,35 +18,6 @@ var directory string
 // a string postfixed to each file name
 var fileNameSubstring = "_thn"
 
-// a list of subDirectories which the application is allowed to delete jpg in
-var subDirectories = [...]string{
-	"Light",
-	"Dark",
-	"Bias",
-	"Flat",
-}
-
-// SubdirectoryNotfoundMessage is the error message returned when a required subdirectory is not found in the input path
-var SubdirectoryNotfoundMessage = fmt.Sprintf("%s %s", "required subdirectory not found, path must contain one of the following sub-directories", strings.Join(subDirectories[:], ", "))
-
-func stringInSlice(incString string, incList []string) bool {
-	for _, b := range incList {
-		if b == incString {
-			return true
-		}
-	}
-	return false
-}
-
-func sliceInSlice(sliceOne []string, sliceTwo []string) bool {
-	for _, v1 := range sliceOne {
-		if stringInSlice(v1, sliceTwo) {
-			return true
-		}
-	}
-	return false
-}
-
 func run(cmd *cobra.Command, args []string) (err error) {
 
 	if _, err := appFs.Stat(directory); err != nil {

@@ -57,10 +57,5 @@ var _ = Describe("The directory parameter", func() {
 			expectedError:  errors.New("directory does not exist DoesNotExist"),
 			expectedOutput: "Usage",
 		}),
-
-		Entry("should return error when input directory does not contain requires subdirectory", testCase{
-			inputPath:     "/foo/ShouldExist",
-			expectedError: errors.New(SubdirectoryNotfoundMessage),
-		}),
 	)
 })

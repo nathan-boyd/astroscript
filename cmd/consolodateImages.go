@@ -18,25 +18,31 @@ func consolodateImages(cmd *cobra.Command, args []string) (err error) {
 		return fmt.Errorf("directory does not exist %s", directory)
 	}
 
+	fmt.Fprintf(cmd.OutOrStdout(), "consolidating imags \n\tfrom: %s \n\t  to: %s\n", inPath, outPath)
+
 	err = filepath.Walk(inPath, func(path string, info os.FileInfo, err error) error {
 
-		if !info.IsDir() {
-			newPath := fmt.Sprintf("%s/%s", outPath, info.Name())
-			return copy(path, newPath)
+		if info.IsDir() {
+			return nil
 		}
 
-		fmt.Fprintf(cmd.OutOrStdout(), directory)
+		containsSub := stringContainsSlice(info.Name(), subDirectories[:])
+		if !containsSub {
+			return nil
+		}
+
+		newPath := fmt.Sprintf("%s/%s", outPath, info.Name())
+		go copy(path, newPath)
+
+		fmt.Fprintf(cmd.OutOrStdout(), "copied:\n  \tfrom: %s\n \t  to: %s\n", path, newPath)
 
 		return err
-
 	})
 
 	return
 }
 
 func copy(src, dst string) error {
-
-	fmt.Println(src)
 
 	in, err := afero.ReadFile(appFs, src)
 	if err != nil {
