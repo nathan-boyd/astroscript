@@ -36,16 +36,21 @@ func removeJpgs(path string) (err error) {
 	// check that path contains one of the required astro sub directories
 	s := strings.Split(path, "/")
 	if !sliceInSlice(s, subDirectories[:]) {
+		fmt.Printf("skipping path %s, due to filter\n", path)
 		return
 	}
 
 	if filepath.Ext(path) != ".jpg" {
+		fmt.Printf("skipping non jpg file %s\n", path)
 		return
 	}
 
 	if !strings.Contains(filepath.Base(path), fileNameSubstring) {
+		fmt.Printf("skipping file missing required substring %s\n", path)
 		return
 	}
+
+	fmt.Printf("removing file %s\n", path)
 
 	return appFs.Remove(path)
 }
