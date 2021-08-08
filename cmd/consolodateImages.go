@@ -18,9 +18,9 @@ func consolodateImages(cmd *cobra.Command, args []string) (err error) {
 		return fmt.Errorf("directory does not exist %s", directory)
 	}
 
-	fmt.Fprintf(cmd.OutOrStdout(), "consolidating imags \n\tfrom: %s \n\t  to: %s\n", inPath, outPath)
+	fmt.Fprintf(cmd.OutOrStdout(), "consolidating images \n\tfrom: %s \n\t  to: %s\n", inPath, outPath)
 
-	err = filepath.Walk(inPath, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(inPath, func(currentPath string, info os.FileInfo, err error) error {
 
 		if info.IsDir() {
 			return nil
@@ -28,13 +28,14 @@ func consolodateImages(cmd *cobra.Command, args []string) (err error) {
 
 		containsSub := stringContainsSlice(info.Name(), subDirectories[:])
 		if !containsSub {
+			fmt.Fprintln(cmd.OutOrStdout(), "skipping path, due to filter")
 			return nil
 		}
 
 		newPath := fmt.Sprintf("%s/%s", outPath, info.Name())
-		go copy(path, newPath)
+		go copy(currentPath, newPath)
 
-		fmt.Fprintf(cmd.OutOrStdout(), "copied:\n  \tfrom: %s\n \t  to: %s\n", path, newPath)
+		fmt.Fprintf(cmd.OutOrStdout(), "copied:\n  \tfrom: %s\n \t  to: %s\n", currentPath, newPath)
 
 		return err
 	})
